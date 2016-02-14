@@ -1,0 +1,13 @@
+[package]
+name = "redis-cli"
+version = "0.0.1"
+authors = ["Qing Yan <admin@zensh.com>"]
+description = "Redis CLI."
+documentation = "https://github.com/iorust/redis-cli"
+homepage = "https://github.com/iorust/redis-cli"
+repository = "https://github.com/iorust/redis-cli.git"
+readme = "README.md"
+keywords = ["redis", "CLI"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
