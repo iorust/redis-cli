@@ -2,6 +2,7 @@ extern crate clap;
 extern crate resp;
 
 use std::io;
+use std::io::prelude::*;
 use std::str::FromStr;
 use clap::{Arg, App};
 
@@ -14,7 +15,7 @@ mod connection;
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.1.0")
+        .version("0.1.1")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -66,8 +67,9 @@ fn main() {
 
     let mut client = create_client(hostname, port, password, db).expect("Failed to connect");
     let stdin = io::stdin();
-    // let mut stdout = io::stdout();
-    // let mut stderr = io::stderr();
+    let mut stdout = io::stdout();
+    let mut stderr = io::stderr();
+
     loop {
         let mut input = String::new();
         match stdin.read_line(&mut input) {
@@ -75,17 +77,16 @@ fn main() {
                 let commands: Vec<&str> = input.split_whitespace().collect();
                 match client.cmd(&commands) {
                     Ok(value) => {
-                        // stdout.write(value.to_string());
-                        println!("{:?}", value);
+                        writeln!(stdout, "{}", &value.to_beautify_string());
                     }
                     Err(err) => {
-                        // stderr.write(err.to_string());
-                        println!("{:?}", err);
+                        writeln!(stderr, "{:?}", err);
                     }
-                }
+                };
             }
-            Err(err) => println!("{:?}", err),
-        }
-
+            Err(err) => {
+                writeln!(stderr, "{:?}", err);
+            }
+        };
     }
 }
