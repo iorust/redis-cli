@@ -1,8 +1,8 @@
 use std::io::Result;
 use std::net::{ToSocketAddrs};
 
-use super::resp::Value;
-use super::connection::Connection;
+use super::{Value};
+use super::connection::{Connection};
 
 pub fn create_client(hostname: &str, port: u16, password: &str, db: u16) -> Result<Client> {
     let mut client = Client::new((hostname, port));

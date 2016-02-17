@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std::net::{TcpStream, ToSocketAddrs};
 use std::io::{BufReader, Result, ErrorKind};
 
-use super::resp::{Value, encode_slice, Decoder};
+use super::{Value, encode_slice, Decoder};
 
 pub struct Connection {
     tcp: TcpStream,
@@ -60,13 +60,12 @@ impl Connection {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::{Value};
 
     #[test]
     fn struct_connection() {
         let mut connection = Connection::new("127.0.0.1:6379");
-        let cmd1 = ["set", "rust", "test"];
-        let cmd2 = ["get", "rust"];
-        println!("{:?}", connection.request(&cmd1));
-        println!("{:?}", connection.request(&cmd2));
+        assert_eq!(connection.request(&["set", "rust", "test_redis_cli"]).unwrap(), Value::String("OK".to_string()));
+        assert_eq!(connection.request(&["get", "rust"]).unwrap(), Value::Bulk("test_redis_cli".to_string()));
     }
 }

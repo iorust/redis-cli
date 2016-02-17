@@ -1,21 +1,16 @@
 extern crate clap;
-extern crate resp;
+extern crate redis_cli;
 
 use std::io;
 use std::io::prelude::*;
 use std::str::FromStr;
 use clap::{Arg, App};
 
-use self::redis::{create_client};
-
-mod redis;
-mod error;
-mod command;
-mod connection;
+use redis_cli::{create_client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.1.1")
+        .version("0.1.2")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -77,15 +72,15 @@ fn main() {
                 let commands: Vec<&str> = input.split_whitespace().collect();
                 match client.cmd(&commands) {
                     Ok(value) => {
-                        writeln!(stdout, "{}", &value.to_beautify_string());
+                        writeln!(stdout, "{}", &value.to_beautify_string()).unwrap();
                     }
                     Err(err) => {
-                        writeln!(stderr, "{:?}", err);
+                        writeln!(stderr, "{:?}", err).unwrap();
                     }
                 };
             }
             Err(err) => {
-                writeln!(stderr, "{:?}", err);
+                writeln!(stderr, "{:?}", err).unwrap();
             }
         };
     }
