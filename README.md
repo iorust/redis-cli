@@ -2,6 +2,11 @@ redis-cli
 ====
 Redis CLI.
 
+[![Crates version][version-image]][version-url]
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
+[![Crates downloads][downloads-image]][downloads-url]
+
 ### Build
 
 ```sh
@@ -30,7 +35,7 @@ use redis_cli::{create_client, Client, COMMANDS, Value, encode_slice, Decoder};
 #### Value, encode_slice, Decoder
 Re-exports from the https://github.com/iorust/resp
 
-#### `fn create_client(hostname: &str, port: u16, password: &str, db: u16) -> io::Result<Client>`
+#### `fn create_client(host: &str, port: u16, password: &str, db: u16) -> io::Result<Client>`
 ```Rust
 let mut client = create_client("127.0.0.1", 6379, "", 0).expect("Failed to connect");
 client.cmd(&["set", "test", "hello!"]).unwrap();
@@ -56,16 +61,7 @@ client.cmd(&["sget", "test"]).unwrap(); // Value::String("hello!")
 ```
 
 ### COMMANDS
-
-### Notice
 `Pub/Sub`, `Cluster`, `monitor` are not available currently.
-
-[![Crates version][version-image]][version-url]
-[![Build Status][travis-image]][travis-url]
-[![Coverage Status][coveralls-image]][coveralls-url]
-[![Crates downloads][downloads-image]][downloads-url]
-
-## Developing
 
 [version-image]: https://img.shields.io/crates/v/redis-cli.svg
 [version-url]: https://crates.io/crates/redis-cli
