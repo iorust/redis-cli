@@ -61,7 +61,7 @@ client.cmd(&["sget", "test"]).unwrap(); // Value::String("hello!")
 ```
 
 ### COMMANDS
-`Pub/Sub`, `Cluster`, `monitor` are not available currently.
+`Pub/Sub`, `monitor` are not available currently.
 
 [version-image]: https://img.shields.io/crates/v/redis-cli.svg
 [version-url]: https://crates.io/crates/redis-cli

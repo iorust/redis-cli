@@ -10,7 +10,7 @@ use redis_cli::{create_client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.1.2")
+        .version("0.1.1")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -57,7 +57,7 @@ fn main() {
         password = _password;
     }
     if let Some(_hostname) = matches.value_of("hostname") {
-        hostname = hostname;
+        hostname = _hostname;
     }
 
     let mut client = create_client(hostname, port, password, db).expect("Failed to connect");
