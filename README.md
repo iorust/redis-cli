@@ -57,11 +57,17 @@ let mut client = Client::new((hostname, port));
 
 ##### `fn cmd(&mut self, slice: &[&str]) -> Result<Value>`
 ```Rust
-client.cmd(&["sget", "test"]).unwrap(); // Value::String("hello!")
+client.cmd(&["get", "test"]).unwrap(); // Value::String("hello!")
+```
+
+##### `fn read_more(&mut self) -> Result<Value>`
+Some commands will have one more replies. This method use to read them.
+```Rust
+client.read_more().unwrap();
 ```
 
 ### COMMANDS
-`Pub/Sub`, `monitor` are not available currently.
+https://github.com/iorust/redis-cli/blob/master/src/command.rs
 
 [version-image]: https://img.shields.io/crates/v/redis-cli.svg
 [version-url]: https://crates.io/crates/redis-cli

@@ -1,6 +1,6 @@
 [package]
 name = "redis-cli"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Qing Yan <admin@zensh.com>"]
 description = "Redis CLI."
 documentation = "https://github.com/iorust/redis-cli"
@@ -11,11 +11,12 @@ keywords = ["redis", "CLI"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-resp = "^0.2.5"
+resp = "^0.2.6"
 
 [dependencies.clap]
-version = "^2.1.0"
+version = "^2.1.1"
 default-features = false
+features = [ "yaml" ]
 
 [[bin]]
 name = "redis-cli"

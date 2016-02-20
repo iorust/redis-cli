@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate clap;
 extern crate redis_cli;
 
@@ -10,7 +11,7 @@ use redis_cli::{create_client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.1.1")
+        .version("0.2.0")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -67,21 +68,44 @@ fn main() {
 
     loop {
         let mut input = String::new();
-        match stdin.read_line(&mut input) {
-            Ok(_) => {
-                let commands: Vec<&str> = input.split_whitespace().collect();
-                match client.cmd(&commands) {
-                    Ok(value) => {
-                        writeln!(stdout, "{}", &value.to_beautify_string()).unwrap();
+        stdin.read_line(&mut input).expect("Failed to read command");
+
+        let commands: Vec<&str> = input.split_whitespace().collect();
+        if commands.len() == 0 {
+            continue;
+        }
+        let command: &str = &commands[0].to_uppercase();
+        match client.cmd(&commands) {
+            Ok(value) => {
+                let mut reply = value.to_beautify_string();
+                match command {
+                    "INFO" => {
+                        // remove first and last '"'
+                        reply.remove(0);
+                        reply.pop();
+                        writeln!(stdout, "{}", reply.trim()).unwrap();
                     }
-                    Err(err) => {
-                        writeln!(stderr, "{:?}", err).unwrap();
+
+                    "MONITOR" | "PSUBSCRIBE" | "PUNSUBSCRIBE" | "SUBSCRIBE" | "UNSUBSCRIBE" => {
+                        writeln!(stdout, "{}", "Reading messages... (press Ctrl-C to quit)").unwrap();
+                        writeln!(stdout, "{}", reply).unwrap();
+
+                        loop {
+                            let reply = client.read_more().unwrap().to_beautify_string();
+                            writeln!(stdout, "{}", reply).unwrap();
+                        }
                     }
-                };
+
+                    _ => {
+                        writeln!(stdout, "{}", reply).unwrap();
+                    }
+                }
             }
+
             Err(err) => {
                 writeln!(stderr, "{:?}", err).unwrap();
             }
         };
+
     }
 }

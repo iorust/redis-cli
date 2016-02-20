@@ -1,9 +1,8 @@
-use std::vec::Vec;
 use std::io::prelude::*;
 use std::net::{TcpStream, ToSocketAddrs};
 use std::io::{BufReader, Result, ErrorKind};
 
-use super::{Value, encode_slice, Decoder};
+use super::{Value, Decoder};
 
 pub struct Connection {
     tcp: TcpStream,
@@ -18,19 +17,15 @@ impl Connection {
         }
     }
 
-    pub fn request(&mut self, slice: &[&str]) -> Result<Value> {
-        let buf = encode_slice(slice);
-        let mut res = self.cmd(&buf, 1);
-        match res {
-            Ok(ref mut values) => Ok(values.remove(0)),
-            Err(err) => Err(err),
-        }
+    pub fn write(&mut self, buf: &[u8]) -> Result<()> {
+        self.tcp.write_all(buf)
     }
 
-    fn cmd(&mut self, buf: &[u8], expect_count: usize) -> Result<Vec<Value>> {
-        try!(self.tcp.write(buf));
+    pub fn read(&mut self) -> Result<Value> {
+        if let Some(value) = self.de.read() {
+            return Ok(value);
+        }
         let mut reader = BufReader::new(&mut self.tcp);
-        let mut result: Vec<Value> = Vec::with_capacity(expect_count);
         loop {
             let consumed_len = {
                 let buffer = match reader.fill_buf() {
@@ -48,10 +43,7 @@ impl Connection {
 
             reader.consume(consumed_len);
             if let Some(value) = self.de.read() {
-                result.push(value);
-                if result.len() == expect_count {
-                    return Ok(result);
-                }
+                return Ok(value);
             }
         }
     }
@@ -60,12 +52,20 @@ impl Connection {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::{Value};
+    use super::super::{Value, encode_slice};
 
     #[test]
     fn struct_connection() {
         let mut connection = Connection::new("127.0.0.1:6379");
-        assert_eq!(connection.request(&["set", "rust", "test_redis_cli"]).unwrap(), Value::String("OK".to_string()));
-        assert_eq!(connection.request(&["get", "rust"]).unwrap(), Value::Bulk("test_redis_cli".to_string()));
+        connection.write(&encode_slice(&["set", "rust", "test_redis_cli"])).unwrap();
+        assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
+
+        connection.write(&encode_slice(&["get", "rust"])).unwrap();
+        assert_eq!(connection.read().unwrap(), Value::Bulk("test_redis_cli".to_string()));
+
+        connection.write(&encode_slice(&["set", "rust", "test_redis_cli_2"])).unwrap();
+        connection.write(&encode_slice(&["get", "rust"])).unwrap();
+        assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
+        assert_eq!(connection.read().unwrap(), Value::Bulk("test_redis_cli_2".to_string()));
     }
 }

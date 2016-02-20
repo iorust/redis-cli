@@ -1,7 +1,7 @@
-use std::io::Result;
+use std::io::{Result, Error, ErrorKind};
 use std::net::{ToSocketAddrs};
 
-use super::{Value};
+use super::{Value, encode_slice};
 use super::connection::{Connection};
 
 pub fn create_client(hostname: &str, port: u16, password: &str, db: u16) -> Result<Client> {
@@ -22,15 +22,26 @@ impl Client {
     }
 
     pub fn cmd(&mut self, slice: &[&str]) -> Result<Value> {
-        self.conn.request(slice)
+        let buf = encode_slice(slice);
+        self.conn.write(&buf).unwrap();
+        self.conn.read()
+    }
+
+    pub fn read_more(&mut self) -> Result<Value> {
+        self.conn.read()
     }
 
     fn init(&mut self, password: &str, db: u16) -> Result<()> {
         if password.len() > 0 {
-            try!(self.cmd(&["auth", password]));
+            if let Value::Error(err)  = try!(self.cmd(&["auth", password])) {
+                return Err(Error::new(ErrorKind::PermissionDenied, err));
+            }
+
         }
         if db > 0 {
-            try!(self.cmd(&["select", &db.to_string()]));
+            if let Value::Error(err)  = try!(self.cmd(&["select", &db.to_string()])) {
+                return Err(Error::new(ErrorKind::InvalidInput, err));
+            }
         }
         Ok(())
     }
