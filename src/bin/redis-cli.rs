@@ -11,7 +11,7 @@ use redis_cli::{create_client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.2.0")
+        .version("0.2.2")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
