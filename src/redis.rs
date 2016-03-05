@@ -5,7 +5,7 @@ use super::{Value, encode_slice};
 use super::connection::{Connection};
 
 pub fn create_client(hostname: &str, port: u16, password: &str, db: u16) -> Result<Client> {
-    let mut client = Client::new((hostname, port));
+    let mut client = try!(Client::new((hostname, port)));
     try!(client.init(password, db));
     Ok(client)
 }
@@ -15,10 +15,10 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<A: ToSocketAddrs>(addrs: A) -> Self {
-        Client {
-            conn: Connection::new(addrs),
-        }
+    pub fn new<A: ToSocketAddrs>(addrs: A) -> Result<Self> {
+        Ok(Client {
+            conn: try!(Connection::new(addrs)),
+        })
     }
 
     pub fn cmd(&mut self, slice: &[&str]) -> Result<Value> {

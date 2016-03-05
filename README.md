@@ -50,7 +50,7 @@ struct Client {
 
 #### impl Client
 
-##### `fn new<A: ToSocketAddrs>(addrs: A) -> Self`
+##### `fn new<A: ToSocketAddrs>(addrs: A) -> io::Result<Client>`
 ```Rust
 let mut client = Client::new((hostname, port));
 ```

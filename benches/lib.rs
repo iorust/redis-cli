@@ -4,10 +4,10 @@ extern crate test;
 extern crate redis_cli;
 
 use test::Bencher;
-use redis_cli::{create_client, Client, Value};
+use redis_cli::{create_client, Client};
 
 fn prepare_client() -> Client {
-    create_client("127.0.0.1", 6379, "", 0).expect("Failed to connect")
+    create_client("127.0.0.1", 6379, "", 0).unwrap()
 }
 
 #[bench]

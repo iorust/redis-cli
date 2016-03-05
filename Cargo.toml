@@ -1,6 +1,6 @@
 [package]
 name = "redis-cli"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Qing Yan <admin@zensh.com>"]
 description = "Redis CLI."
 documentation = "https://github.com/iorust/redis-cli"
