@@ -1,7 +1,12 @@
-extern crate resp;
+#![feature(fnbox)]
 
-pub use resp::{Value, encode_slice, Decoder};
-pub use redis::{create_client, Client};
+extern crate resp;
+extern crate mio;
+extern crate slab;
+extern crate time;
+
+pub use resp::{Value};
+pub use redis::{Client, create_client};
 pub use command::{COMMANDS};
 
 mod command;

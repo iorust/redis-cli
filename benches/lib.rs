@@ -20,3 +20,14 @@ fn ping(b: &mut Bencher) {
         }
     });
 }
+
+#[bench]
+fn ping_async(b: &mut Bencher) {
+    let mut client =  prepare_client();
+    let command = ["ping"];
+    b.iter(|| {
+        for _ in 0..1000 {
+            client.cmd_async(&command, |_| {}).unwrap();
+        }
+    });
+}

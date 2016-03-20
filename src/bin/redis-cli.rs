@@ -11,7 +11,7 @@ use redis_cli::{create_client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.3.0")
+        .version("0.4.0")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -91,7 +91,7 @@ fn main() {
                         writeln!(stdout, "{}", reply).unwrap();
 
                         loop {
-                            let reply = client.read_more().unwrap().to_beautify_string();
+                            let reply = client.read_value().unwrap().to_beautify_string();
                             writeln!(stdout, "{}", reply).unwrap();
                         }
                     }
