@@ -7,7 +7,7 @@ use std::io::prelude::*;
 use std::str::FromStr;
 use clap::{Arg, App};
 
-use redis_cli::{create_client};
+use redis_cli::{create_client_sync};
 
 fn main() {
     let matches = App::new("redis-cli")
@@ -61,7 +61,7 @@ fn main() {
         hostname = _hostname;
     }
 
-    let mut client = create_client(hostname, port, password, db).expect("Failed to connect");
+    let mut client = create_client_sync(hostname, port, password, db).expect("Failed to connect");
     let stdin = io::stdin();
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
