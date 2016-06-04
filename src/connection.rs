@@ -62,11 +62,13 @@ mod tests {
         assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
 
         connection.write(&encode_slice(&["get", "rust"])).unwrap();
-        assert_eq!(connection.read().unwrap(), Value::Bulk("test_redis_cli".to_string()));
+        assert_eq!(connection.read().unwrap(),
+                   Value::Bulk("test_redis_cli".to_string()));
 
         connection.write(&encode_slice(&["set", "rust", "test_redis_cli_2"])).unwrap();
         connection.write(&encode_slice(&["get", "rust"])).unwrap();
         assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
-        assert_eq!(connection.read().unwrap(), Value::Bulk("test_redis_cli_2".to_string()));
+        assert_eq!(connection.read().unwrap(),
+                   Value::Bulk("test_redis_cli_2".to_string()));
     }
 }

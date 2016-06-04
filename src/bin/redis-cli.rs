@@ -7,11 +7,11 @@ use std::io::prelude::*;
 use std::str::FromStr;
 use clap::{Arg, App};
 
-use redis_cli::{create_client};
+use redis_cli::{create_client, Client};
 
 fn main() {
     let matches = App::new("redis-cli")
-        .version("0.3.0")
+        .version("0.3.1")
         .author("Qing Yan <admin@zensh.com>")
         .arg(Arg::with_name("hostname")
             .short("h")
@@ -61,7 +61,17 @@ fn main() {
         hostname = _hostname;
     }
 
-    let mut client = create_client(hostname, port, password, db).expect("Failed to connect");
+    let mut client: Client = match create_client(hostname, port, password, db) {
+        Ok(cli) => {
+            println!("Redis [{}]:{} connected.", hostname, port);
+            cli
+        }
+        Err(err) => {
+            println!("Redis [{}]:{} connect failed. {}", hostname, port, err);
+            return;
+        }
+    };
+
     let stdin = io::stdin();
     let mut stdout = io::stdout();
     let mut stderr = io::stderr();
@@ -85,23 +95,20 @@ fn main() {
                         reply.pop();
                         writeln!(stdout, "{}", reply.trim()).unwrap();
                     }
-
                     "MONITOR" | "PSUBSCRIBE" | "PUNSUBSCRIBE" | "SUBSCRIBE" | "UNSUBSCRIBE" => {
-                        writeln!(stdout, "{}", "Reading messages... (press Ctrl-C to quit)").unwrap();
+                        writeln!(stdout, "{}", "Reading messages... (press Ctrl-C to quit)")
+                            .unwrap();
                         writeln!(stdout, "{}", reply).unwrap();
-
                         loop {
                             let reply = client.read_more().unwrap().to_beautify_string();
                             writeln!(stdout, "{}", reply).unwrap();
                         }
                     }
-
                     _ => {
                         writeln!(stdout, "{}", reply).unwrap();
                     }
                 }
             }
-
             Err(err) => {
                 writeln!(stderr, "{:?}", err).unwrap();
             }
