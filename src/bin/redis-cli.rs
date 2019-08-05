@@ -86,6 +86,9 @@ fn main() {
     let mut stderr = io::stderr();
 
     loop {
+        print!("{}:{}> ",hostname, port);
+        io::stdout().flush().unwrap();
+
         let mut input = String::new();
         stdin.read_line(&mut input).expect("Failed to read command");
 
