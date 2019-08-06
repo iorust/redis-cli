@@ -1,11 +1,10 @@
-#[macro_use]
 extern crate clap;
 extern crate redis_cli;
 
+use clap::{App, Arg};
 use std::io;
 use std::io::prelude::*;
 use std::str::FromStr;
-use clap::{Arg, App};
 
 use redis_cli::{create_client, Client};
 
@@ -13,34 +12,44 @@ fn main() {
     let matches = App::new("redis-cli")
         .version("0.3.1")
         .author("Qing Yan <admin@zensh.com>")
-        .arg(Arg::with_name("hostname")
-            .short("h")
-            .long("hostname")
-            .help("Server hostname (default: 127.0.0.1).")
-            .required(false)
-            .takes_value(true))
-        .arg(Arg::with_name("port")
-            .short("p")
-            .long("port")
-            .help("Server port (default: 6379).")
-            .required(false)
-            .takes_value(true))
-        .arg(Arg::with_name("password")
-            .short("a")
-            .long("password")
-            .help("Password to use when connecting to the server.")
-            .required(false)
-            .takes_value(true))
-        .arg(Arg::with_name("db")
-            .short("n")
-            .long("db")
-            .help("Database number.")
-            .required(false)
-            .takes_value(true))
-        .arg(Arg::with_name("command")
-            .help("command...")
-            .required(false)
-            .index(1))
+        .arg(
+            Arg::with_name("hostname")
+                .short("h")
+                .long("hostname")
+                .help("Server hostname (default: 127.0.0.1).")
+                .required(false)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("port")
+                .short("p")
+                .long("port")
+                .help("Server port (default: 6379).")
+                .required(false)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("password")
+                .short("a")
+                .long("password")
+                .help("Password to use when connecting to the server.")
+                .required(false)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("db")
+                .short("n")
+                .long("db")
+                .help("Database number.")
+                .required(false)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("command")
+                .help("command...")
+                .required(false)
+                .index(1),
+        )
         .get_matches();
 
     let mut db: u16 = 0;
@@ -77,6 +86,9 @@ fn main() {
     let mut stderr = io::stderr();
 
     loop {
+        print!("{}:{}> ",hostname, port);
+        io::stdout().flush().unwrap();
+
         let mut input = String::new();
         stdin.read_line(&mut input).expect("Failed to read command");
 
@@ -113,6 +125,5 @@ fn main() {
                 writeln!(stderr, "{:?}", err).unwrap();
             }
         };
-
     }
 }

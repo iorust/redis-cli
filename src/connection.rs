@@ -1,8 +1,8 @@
 use std::io::prelude::*;
+use std::io::{BufReader, ErrorKind, Result};
 use std::net::{TcpStream, ToSocketAddrs};
-use std::io::{BufReader, Result, ErrorKind};
 
-use super::{Value, Decoder};
+use super::{Decoder, Value};
 
 pub struct Connection {
     stream: BufReader<TcpStream>,
@@ -11,7 +11,7 @@ pub struct Connection {
 
 impl Connection {
     pub fn new<A: ToSocketAddrs>(addr: A) -> Result<Self> {
-        let tcp = try!(TcpStream::connect(addr));
+        let tcp = TcpStream::connect(addr)?;
         Ok(Connection {
             stream: BufReader::new(tcp),
             decoder: Decoder::new(),
@@ -38,7 +38,7 @@ impl Connection {
                 if buffer.len() == 0 {
                     continue;
                 }
-                try!(self.decoder.feed(&buffer));
+                self.decoder.feed(&buffer)?;
                 buffer.len()
             };
 
@@ -52,23 +52,31 @@ impl Connection {
 
 #[cfg(test)]
 mod tests {
+    use super::super::{encode_slice, Value};
     use super::*;
-    use super::super::{Value, encode_slice};
 
     #[test]
     fn struct_connection() {
         let mut connection = Connection::new("127.0.0.1:6379").unwrap();
-        connection.write(&encode_slice(&["set", "rust", "test_redis_cli"])).unwrap();
+        connection
+            .write(&encode_slice(&["set", "rust", "test_redis_cli"]))
+            .unwrap();
         assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
 
         connection.write(&encode_slice(&["get", "rust"])).unwrap();
-        assert_eq!(connection.read().unwrap(),
-                   Value::Bulk("test_redis_cli".to_string()));
+        assert_eq!(
+            connection.read().unwrap(),
+            Value::Bulk("test_redis_cli".to_string())
+        );
 
-        connection.write(&encode_slice(&["set", "rust", "test_redis_cli_2"])).unwrap();
+        connection
+            .write(&encode_slice(&["set", "rust", "test_redis_cli_2"]))
+            .unwrap();
         connection.write(&encode_slice(&["get", "rust"])).unwrap();
         assert_eq!(connection.read().unwrap(), Value::String("OK".to_string()));
-        assert_eq!(connection.read().unwrap(),
-                   Value::Bulk("test_redis_cli_2".to_string()));
+        assert_eq!(
+            connection.read().unwrap(),
+            Value::Bulk("test_redis_cli_2".to_string())
+        );
     }
 }
